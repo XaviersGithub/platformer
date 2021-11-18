@@ -1,6 +1,7 @@
 package cps.platformer;
 
 import javax.lang.model.util.ElementScanner6;
+import javax.print.attribute.standard.MediaSize.Other;
 import javax.xml.transform.Templates;
 
 import com.badlogic.gdx.Game;
@@ -62,6 +63,7 @@ public class PlatformerMain extends Game {
 		player.velocity.y -= gravity * Gdx.graphics.getDeltaTime();
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && grounded) {
+			grounded = false;
 			player.velocity.y =3;
 		}
 		else if (player.y <= 0) {
@@ -69,27 +71,27 @@ public class PlatformerMain extends Game {
 			player.y = 0;
 			grounded = true;
 		}
-		else {
-			grounded = false;
-		}
 
 		for (Blocks iter : blockarray) {
 			if (iter.overlaps(player)) {
-
-				if (player.x < iter.x) {
+				if (player.y < iter.y -16) {
+					player.velocity.y =0;
+					player.y = iter.y;
+				}
+				if (player.y > iter.y) {
+					player.velocity.y = 0;
+					grounded = true;
+					player.y = iter.y + iter.height;
+				}
+				else if (player.x < iter.x) {
 					player.velocity.x =0;
+					player.x = iter.x-16;
 				}
 				else if (player.x > iter.x) {
 					player.velocity.y =0;
 					player.x = iter.x + 16;
 				}
-				if (player.y < iter.y) {
-					player.velocity.y =0;
-				}
-				else if (player.y > iter.y) {
-					player.velocity.y = 0;
-					player.y = iter.y + iter.height;
-				}
+
 			}
 		}
 		player.x += player.velocity.x;
