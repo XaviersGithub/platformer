@@ -8,5 +8,7 @@ public class Playerobj extends Rectangle {
 
     Playerobj () {
         velocity = new Vector2();
+        this.height= 32;
+        this.width = 16;
     }
 }
