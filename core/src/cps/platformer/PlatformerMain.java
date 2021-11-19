@@ -5,6 +5,7 @@ import java.time.chrono.IsoEra;
 
 import javax.lang.model.util.ElementScanner6;
 import javax.print.attribute.standard.MediaSize.Other;
+import javax.swing.plaf.metal.MetalBorders.PaletteBorder;
 import javax.xml.transform.Templates;
 
 import com.badlogic.gdx.Game;
@@ -25,7 +26,9 @@ import com.badlogic.gdx.utils.Array;
 public class PlatformerMain extends Game {
 	public SpriteBatch batch;
 	Texture img;
+	Texture currenttex;
 	Texture bg;
+	int regnum =1 ;
 	boolean grounded = false;
 	Array<Block> blockarray = new Array<Block>();
 	Playerobj player;
@@ -35,6 +38,7 @@ public class PlatformerMain extends Game {
 	@Override
 	public void create () {
 		camera = new OrthographicCamera();
+		currenttex = new Texture("structurebeam.png");
 		camera.setToOrtho(false, 256, 224);
 		player = new Playerobj();
 		player.width = 16;
@@ -56,8 +60,13 @@ public class PlatformerMain extends Game {
 	@Override
 	public void render () {
 
-		
-		//camera.position.set(new Vector3(player.x, 224/2,0));
+
+		if (player.x < camera.position.x - camera.viewportWidth/2) {
+			player.x = camera.position.x - camera.viewportWidth/2;
+		}
+		if (player.x > camera.position.x ) {
+			camera.position.set(new Vector3(player.x, 224/2,0));
+		}
 		Gdx.gl.glClearColor(0, 0, 0.2f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		camera.update();
@@ -65,9 +74,34 @@ public class PlatformerMain extends Game {
 		batch.begin();
 		
 		//
-		batch.draw(bg, 0, 0);
+		batch.draw(bg, camera.position.x - camera.viewportWidth/2, 0);
 
-		
+		if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+			if (regnum > 10) {
+				regnum = 1;
+			}
+			if (regnum <= 0) {
+				regnum = 10;
+			}
+			else {
+				regnum++;
+			}
+		}
+
+		switch (regnum) {
+			case 1:
+				currenttex = new Texture("block.png");
+				break;
+			case 2:
+				currenttex = new Texture("cementtop.png");
+				break;
+			case 3:
+				currenttex = new Texture("chicken.png");
+				break;
+			default:
+				currenttex = new Texture("structurebeam.png");
+				break;
+		}
 
 
 
@@ -82,7 +116,7 @@ public class PlatformerMain extends Game {
 		// BLOCK CREATION FOR DEBUG TESTING AND MAP CREATION
 		if (Gdx.input.justTouched()) {
 			Vector3 touch = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
-			Block testblock = new Block(16*((int)(touch.x /16)), 16*((int)(touch.y /16)));
+			Block testblock = new Block(16*((int)(touch.x /16)), 16*((int)(touch.y /16)), currenttex);
 			blockarray.add(testblock);
 			
 		}

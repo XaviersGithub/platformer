@@ -8,14 +8,24 @@ public class Block extends Rectangle {
 
 
     Block () {
-        blockimage = new Texture("block.png");
+        //blockimage = new Texture("block.png");
+        blockimage = new Texture("structurebeam.png");
         this.width = 16;
         this.height = 16;
     }
 
 
     Block (int xpos, int ypos) {
-        blockimage = new Texture("block.png");
+        //blockimage = new Texture("block.png");
+        blockimage = new Texture("structurebeam.png");
+        this.width = 16;
+        this.height = 16;
+        this.x = xpos;
+        this.y = ypos;
+    }
+
+    Block(int xpos, int ypos, Texture temptex) {
+        blockimage = temptex;
         this.width = 16;
         this.height = 16;
         this.x = xpos;
