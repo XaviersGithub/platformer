@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Rectangle;
 public class Block extends Rectangle {
 
     Texture blockimage;
+    boolean consumnable = false;
 
 
     Block () {

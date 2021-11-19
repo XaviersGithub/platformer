@@ -117,6 +117,15 @@ public class PlatformerMain extends Game {
 		if (Gdx.input.justTouched()) {
 			Vector3 touch = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
 			Block testblock = new Block(16*((int)(touch.x /16)), 16*((int)(touch.y /16)), currenttex);
+			testblock.consumnable = false;
+			blockarray.add(testblock);
+			
+		}
+
+		if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
+			Vector3 touch = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+			Block testblock = new Block(16*((int)(touch.x /16)), 16*((int)(touch.y /16)), new Texture("chicken.png"));
+			testblock.consumnable = true;
 			blockarray.add(testblock);
 			
 		}
@@ -144,22 +153,28 @@ public class PlatformerMain extends Game {
 
 		boolean tempgrounded = false;
 		for (Block iter : blockarray) {
-			if (iter.overlaps(player)) {
+			if (iter.overlaps(player) && !iter.consumnable) {
 				if (player.y > iter.y) {
 
 					player.y = iter.y + iter.height;
 					tempgrounded = true;
 				}
 			}
+			else if (iter.overlaps(player) && iter.consumnable) {
+				blockarray.removeValue(iter, true);
+			}
 		}
 
 
 		for (Block iter : blockarray) {
-			if (iter.overlaps(player)) {
+			if (iter.overlaps(player) && !iter.consumnable) {
 				if (player.y < iter.y) {
 					player.y = iter.y - player.height;
 					player.velocity.y = 0;
 				}
+			}
+			else if (iter.overlaps(player) && iter.consumnable) {
+				blockarray.removeValue(iter, true);
 			}
 		}	
 
@@ -168,10 +183,13 @@ public class PlatformerMain extends Game {
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
 			player.x -= 50* Gdx.graphics.getDeltaTime();
 			for (Block iter : blockarray) {
-				if (iter.overlaps(player)) {
+				if (iter.overlaps(player) && !iter.consumnable) {
 					if (player.x  < iter.x + iter.width) {
 						player.x = iter.x + player.width;
 					}
+				}
+				else if (iter.overlaps(player) && iter.consumnable) {
+					blockarray.removeValue(iter, true);
 				}
 			}
 
@@ -180,11 +198,15 @@ public class PlatformerMain extends Game {
 			
 			player.x += 50* Gdx.graphics.getDeltaTime();
 			for (Block iter : blockarray) {
-				if (iter.overlaps(player)) {
+				if (iter.overlaps(player) && !iter.consumnable) {
 					if (player.x + player.width > iter.x) {
 						
 						player.x = iter.x - player.width;
 					}
+					
+				}
+				else if (iter.overlaps(player) && iter.consumnable) {
+					blockarray.removeValue(iter, true);
 				}
 			}
 		}
