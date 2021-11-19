@@ -7,7 +7,7 @@ import cps.platformer.PlatformerMain;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-        config.title = "Your Title Here";
+        config.title = "The Strange-Former";
         config.width = 256;
         config.height = 224;
 		new LwjglApplication(new PlatformerMain(), config);

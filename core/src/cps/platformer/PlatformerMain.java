@@ -1,6 +1,7 @@
 package cps.platformer;
 
 import java.time.Year;
+import java.time.chrono.IsoEra;
 
 import javax.lang.model.util.ElementScanner6;
 import javax.print.attribute.standard.MediaSize.Other;
@@ -37,7 +38,7 @@ public class PlatformerMain extends Game {
 		player = new Playerobj();
 		player.width = 16;
 		player.height = 32;
-		player.y = 32;
+		player.y = 64;
 		batch = new SpriteBatch();
 		for (int i = 0; i < 10; i++) {
 			Block tempblocks = new Block();
@@ -84,18 +85,9 @@ public class PlatformerMain extends Game {
 
 
 		//INPUT
-		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-			player.velocity.x = -2;
-		}
-		else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-			player.velocity.x = 2;
-		}
-		else {
-			player.velocity.x = 0;
-		}
+
 		player.velocity.y -= gravity * Gdx.graphics.getDeltaTime();
 		player.y += player.velocity.y;
-		player.x += player.velocity.x * Gdx.graphics.getDeltaTime() *50;
 		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && grounded) {
 			player.velocity.y =3;
 		}
@@ -108,35 +100,56 @@ public class PlatformerMain extends Game {
 		if (grounded && player.velocity.y <0) 
 		player.velocity.y = 0;
 
+
+
+
+
 		boolean tempgrounded = false;
 		for (Block iter : blockarray) {
 			if (iter.overlaps(player)) {
-				if (player.y < iter.y -16 && (player.x + 16 > iter.x && player.x < iter.x + 16)) {
-					player.velocity.y =0;
-					player.y = iter.y - player.height;
-				}
-				if (player.y > iter.y && (player.x + 16 > iter.x && player.x < iter.x + 16)) {
-					tempgrounded = true;
+				if (player.y > iter.y) {
+
 					player.y = iter.y + iter.height;
+					tempgrounded = true;
 				}
-				if (player.y < iter.y -16 && !(player.x + 16 > iter.x && player.x < iter.x + 16)) {
-					
-				}
-				if (player.y > iter.y && !(player.x + 16 > iter.x && player.x < iter.x + 16)) {
-
-				}
-				if (player.x < iter.x && !(player.y < iter.y -16 || player.y > iter.y)) {
-					player.velocity.x =0;
-					player.x = iter.x-16;
-				}
-				if (player.x > iter.x && !(player.y < iter.y -16|| player.y > iter.y)) {
-					player.velocity.y =0;
-					player.x = iter.x + 16;
-				}
-
 			}
 		}
+
+
+		for (Block iter : blockarray) {
+			if (iter.overlaps(player)) {
+				if (player.y < iter.y) {
+					player.y = iter.y - player.height;
+					player.velocity.y = 0;
+				}
+			}
+		}	
+
 		grounded = tempgrounded;
+		
+		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+			player.x -= 50* Gdx.graphics.getDeltaTime();
+			for (Block iter : blockarray) {
+				if (iter.overlaps(player)) {
+					if (player.x  < iter.x + iter.width) {
+						player.x = iter.x + player.width;
+					}
+				}
+			}
+
+		}
+		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+			
+			player.x += 50* Gdx.graphics.getDeltaTime();
+			for (Block iter : blockarray) {
+				if (iter.overlaps(player)) {
+					if (player.x + player.width > iter.x) {
+						
+						player.x = iter.x - player.width;
+					}
+				}
+			}
+		}
 
 
 	}
