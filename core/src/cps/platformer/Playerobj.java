@@ -22,8 +22,9 @@ public class Playerobj extends Rectangle {
     Playerobj () {
         textures  = new Array <Texture>();
         textures.add(new Texture("newidle.png"));
-        textures.add(new Texture("newwalk1squash.png"));
-        textures.add(new Texture("newwalk2stretch.png"));
+        textures.add(new Texture("armwalk1.png"));
+        textures.add(new Texture("armwalk2.png"));
+        textures.add(new Texture("fallanim.png"));
 
         currenttext = textures.get(0);
         velocity = new Vector2();
@@ -38,5 +39,9 @@ public class Playerobj extends Rectangle {
 
     void idling() {
         currenttext = textures.get(0);
+    }
+
+    void falling () {
+        currenttext = textures.get(3);
     }
 }

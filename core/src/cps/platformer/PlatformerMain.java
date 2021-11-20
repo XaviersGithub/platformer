@@ -1,5 +1,10 @@
 package cps.platformer;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.time.Year;
 import java.time.chrono.IsoEra;
 import java.util.Random;
@@ -54,7 +59,7 @@ public class PlatformerMain extends Game {
 		player.height = 32;
 		player.y = 64;
 		batch = new SpriteBatch();
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 100d; i++) {
 			Block tempblocks = new Block();
 			tempblocks.x = 0;
 			tempblocks.y = 0;
@@ -68,8 +73,11 @@ public class PlatformerMain extends Game {
 
 	@Override
 	public void render () {
-
-
+		if (player.velocity.y < 0) {
+			if (!grounded) {
+				player.falling();
+			}
+		}
 		float SprintModifier = (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) ? 1.5f : 1f;
 		if (player.x < camera.position.x - camera.viewportWidth/2) {
 			player.x = camera.position.x - camera.viewportWidth/2;
