@@ -8,8 +8,8 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
         config.title = "The Strange-Former";
-        config.width = 256;
-        config.height = 224;
+        config.width = 256*3;
+        config.height = 224 *3;
 		new LwjglApplication(new PlatformerMain(), config);
 	}
 }

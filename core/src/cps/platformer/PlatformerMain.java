@@ -2,6 +2,7 @@ package cps.platformer;
 
 import java.time.Year;
 import java.time.chrono.IsoEra;
+import java.util.Random;
 
 import javax.lang.model.util.ElementScanner6;
 import javax.print.attribute.standard.MediaSize.Other;
@@ -11,6 +12,7 @@ import javax.xml.transform.Templates;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -33,10 +35,14 @@ public class PlatformerMain extends Game {
 	Array<Block> blockarray = new Array<Block>();
 	Playerobj player;
 	private float gravity = 10;
+	Sound nom1;
+	Sound nom2;
 	OrthographicCamera camera;
 	
 	@Override
 	public void create () {
+		nom1 = Gdx.audio.newSound(Gdx.files.internal("consume1.wav"));
+		nom2 = Gdx.audio.newSound(Gdx.files.internal("consume2.wav"));
 		camera = new OrthographicCamera();
 		currenttex = new Texture("structurebeam.png");
 		camera.setToOrtho(false, 256, 224);
@@ -52,7 +58,7 @@ public class PlatformerMain extends Game {
 			tempblocks.x = i*16;
 			blockarray.add(tempblocks);
 		}
-		img = new Texture("player.png");
+		img = new Texture("newplayer.png");
 		bg = new Texture("bg.png");
         setScreen(new MainMenuScreen(this));
 	}
@@ -162,6 +168,8 @@ public class PlatformerMain extends Game {
 			}
 			else if (iter.overlaps(player) && iter.consumnable) {
 				blockarray.removeValue(iter, true);
+				consumenoise();
+
 			}
 		}
 
@@ -175,6 +183,7 @@ public class PlatformerMain extends Game {
 			}
 			else if (iter.overlaps(player) && iter.consumnable) {
 				blockarray.removeValue(iter, true);
+				consumenoise();
 			}
 		}	
 
@@ -190,6 +199,7 @@ public class PlatformerMain extends Game {
 				}
 				else if (iter.overlaps(player) && iter.consumnable) {
 					blockarray.removeValue(iter, true);
+					consumenoise();
 				}
 			}
 
@@ -207,6 +217,7 @@ public class PlatformerMain extends Game {
 				}
 				else if (iter.overlaps(player) && iter.consumnable) {
 					blockarray.removeValue(iter, true);
+					consumenoise();
 				}
 			}
 		}
@@ -214,10 +225,23 @@ public class PlatformerMain extends Game {
 
 	}
 	
+
+	void consumenoise () {
+		Random random = new Random();
+		if (random.nextInt(2) == 1) {
+			nom1.play();
+		}
+		else {
+			nom2.play();
+		}
+	}
+
 	@Override
 	public void dispose () {
 		batch.dispose();
 		img.dispose();
+		nom1.dispose();
+		nom2.dispose();
 	}
 }
 
