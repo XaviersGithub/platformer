@@ -5,6 +5,7 @@ import java.time.chrono.IsoEra;
 import java.util.Random;
 
 import javax.lang.model.util.ElementScanner6;
+import javax.naming.directory.DirContext;
 import javax.print.attribute.standard.MediaSize.Other;
 import javax.swing.plaf.metal.MetalBorders.PaletteBorder;
 import javax.xml.transform.Templates;
@@ -18,6 +19,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.particles.influencers.SpawnInfluencer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
@@ -30,6 +32,7 @@ public class PlatformerMain extends Game {
 	Texture img;
 	Texture currenttex;
 	Texture bg;
+	private boolean playerdir =false;
 	int regnum =1 ;
 	boolean grounded = false;
 	Array<Block> blockarray = new Array<Block>();
@@ -67,6 +70,7 @@ public class PlatformerMain extends Game {
 	public void render () {
 
 
+		float SprintModifier = (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) ? 1.5f : 1f;
 		if (player.x < camera.position.x - camera.viewportWidth/2) {
 			player.x = camera.position.x - camera.viewportWidth/2;
 		}
@@ -114,7 +118,11 @@ public class PlatformerMain extends Game {
 		for (Block iter : blockarray) {
 			batch.draw(iter.blockimage, iter.x, iter.y);
 		}
-		batch.draw(img, player.x, player.y);
+
+		TextureRegion playertextureregion = new TextureRegion();
+		playertextureregion.setRegion(player.currenttext);
+		playertextureregion.flip(playerdir, false);
+		batch.draw(playertextureregion, player.x, player.y);
 		batch.end();
 
 
@@ -189,8 +197,14 @@ public class PlatformerMain extends Game {
 
 		grounded = tempgrounded;
 		
+		if (!Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)) {
+			player.idling();
+		}
+
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-			player.x -= 50* Gdx.graphics.getDeltaTime();
+			playerdir = true;
+			player.walk();
+			player.x -= 50* Gdx.graphics.getDeltaTime() * SprintModifier;
 			for (Block iter : blockarray) {
 				if (iter.overlaps(player) && !iter.consumnable) {
 					if (player.x  < iter.x + iter.width) {
@@ -205,8 +219,10 @@ public class PlatformerMain extends Game {
 
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-			
-			player.x += 50* Gdx.graphics.getDeltaTime();
+
+			playerdir = false;
+			player.walk();
+			player.x += 50* Gdx.graphics.getDeltaTime() * SprintModifier;
 			for (Block iter : blockarray) {
 				if (iter.overlaps(player) && !iter.consumnable) {
 					if (player.x + player.width > iter.x) {
