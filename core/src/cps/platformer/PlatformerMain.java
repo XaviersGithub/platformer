@@ -9,6 +9,7 @@ import java.time.Year;
 import java.time.chrono.IsoEra;
 import java.util.Random;
 
+import javax.imageio.ImageTypeSpecifier;
 import javax.lang.model.util.ElementScanner6;
 import javax.naming.directory.DirContext;
 import javax.print.attribute.standard.MediaSize.Other;
@@ -30,17 +31,22 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.ui.Tree;
 import com.badlogic.gdx.utils.Array;
+
+import org.w3c.dom.Text;
 
 public class PlatformerMain extends Game {
 	public SpriteBatch batch;
 	Texture img;
 	Texture currenttex;
 	Texture bg;
+	Texture patroltex;
 	private boolean playerdir =false;
 	int regnum =1 ;
 	boolean grounded = false;
 	Array<Block> blockarray = new Array<Block>();
+	Array<PatrolEnemy> enemyarray = new Array<PatrolEnemy>();
 	Playerobj player;
 	private float gravity = 10;
 	Sound nom1;
@@ -53,6 +59,7 @@ public class PlatformerMain extends Game {
 		nom2 = Gdx.audio.newSound(Gdx.files.internal("consume2.wav"));
 		camera = new OrthographicCamera();
 		currenttex = new Texture("structurebeam.png");
+
 		camera.setToOrtho(false, 256, 224);
 		player = new Playerobj();
 		player.width = 16;
@@ -68,6 +75,7 @@ public class PlatformerMain extends Game {
 		}
 		img = new Texture("newplayer.png");
 		bg = new Texture("bg.png");
+		patroltex = new Texture("PIGGOOMBA.png");
         setScreen(new MainMenuScreen(this));
 	}
 
@@ -126,6 +134,32 @@ public class PlatformerMain extends Game {
 		for (Block iter : blockarray) {
 			batch.draw(iter.blockimage, iter.x, iter.y);
 		}
+		TextureRegion tempflip = new TextureRegion(patroltex);
+		for (PatrolEnemy iter : enemyarray) {
+			iter.velocity.y -= gravity * Gdx.graphics.getDeltaTime();
+			iter.x+= iter.velocity.x *iter.dir;
+			iter.y += iter.velocity.y;
+			tempflip.flip((iter.dir < 0), false);
+			for (Block iter2 : blockarray) {
+				if (iter.overlaps(iter2)) {
+
+					if (iter.y > iter2.y) {
+						iter.velocity.y = 1;
+						iter.y = iter2.y + iter2.height;
+					}
+					else if (iter.x < iter2.x) {
+						iter.x = iter2.x - iter.width;
+						iter.dir = -iter.dir;
+					}
+					else if (iter.x > iter2.x) {
+						iter.x = iter2.x + iter.width;
+						iter.dir = -iter.dir;
+					}
+				}
+			}
+			batch.draw(tempflip, iter.x, iter.y);
+			
+		}
 
 		TextureRegion playertextureregion = new TextureRegion();
 		playertextureregion.setRegion(player.currenttext);
@@ -141,6 +175,14 @@ public class PlatformerMain extends Game {
 			Block testblock = new Block(16*((int)(touch.x /16)), 16*((int)(touch.y /16)), currenttex);
 			testblock.consumnable = false;
 			blockarray.add(testblock);
+
+			
+		}
+		
+		if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
+			Vector3 touch = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+			PatrolEnemy testblock3 = new PatrolEnemy(16*((int)(touch.x /16)), 16*((int)(touch.y /16)));
+			enemyarray.add(testblock3);
 			
 		}
 
