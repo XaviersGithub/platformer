@@ -166,6 +166,10 @@ public class PlatformerMain extends Game {
 					}
 				}
 			}
+			if (iter.overlaps(player) && !player.dead) {
+				player.dead = true;
+				player.velocity.y = 3;
+			}
 			batch.draw(tempflip, iter.x, iter.y);
 			
 		}
@@ -208,6 +212,8 @@ public class PlatformerMain extends Game {
 
 		player.velocity.y -= gravity * Gdx.graphics.getDeltaTime();
 		player.y += player.velocity.y;
+
+		
 		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && grounded) {
 			player.velocity.y =3;
 		}
@@ -256,6 +262,7 @@ public class PlatformerMain extends Game {
 
 		grounded = tempgrounded;
 		
+		if (!player.dead) {
 		if (!Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)) {
 			player.idling();
 		}
@@ -296,6 +303,7 @@ public class PlatformerMain extends Game {
 				}
 			}
 		}
+	}
 
 
 	}

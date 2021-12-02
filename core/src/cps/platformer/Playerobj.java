@@ -15,6 +15,7 @@ import org.w3c.dom.Text;
 
 public class Playerobj extends Rectangle {
     public Vector2 velocity;
+    boolean dead = false;
 
     public Array <Texture> textures;
     public Texture currenttext;
