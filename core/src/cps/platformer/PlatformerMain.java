@@ -124,6 +124,15 @@ public class PlatformerMain extends Game {
 			case 3:
 				currenttex = new Texture("chicken.png");
 				break;
+			case 4:
+				currenttex = new Texture("purplebricks.png");
+				break;
+			case 5:
+				currenttex = new Texture("exclamation.png");
+				break;
+			case 6:
+				currenttex = new Texture("deagle.png");
+				break;
 			default:
 				currenttex = new Texture("structurebeam.png");
 				break;
