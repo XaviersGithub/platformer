@@ -19,6 +19,7 @@ import javax.xml.transform.Templates;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
@@ -27,12 +28,14 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.particles.influencers.SpawnInfluencer;
+import com.badlogic.gdx.graphics.glutils.KTXTextureData;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.SortedIntList.Iterator;
 
 import org.w3c.dom.Text;
 
@@ -40,6 +43,7 @@ public class PlatformerMain extends Game {
 	public SpriteBatch batch;
 	Texture img;
 	Texture currenttex;
+	Music superjumpermusic;
 	Texture bg;
 	Texture patroltex;
 	private boolean playerdir =false;
@@ -47,6 +51,7 @@ public class PlatformerMain extends Game {
 	boolean grounded = false;
 	Array<Block> blockarray = new Array<Block>();
 	Array<PatrolEnemy> enemyarray = new Array<PatrolEnemy>();
+	Array<ThrowableObject> throwlist = new Array<ThrowableObject>();
 	Playerobj player;
 	private float gravity = 10;
 	Sound nom1;
@@ -59,7 +64,12 @@ public class PlatformerMain extends Game {
 		nom2 = Gdx.audio.newSound(Gdx.files.internal("consume2.wav"));
 		camera = new OrthographicCamera();
 		currenttex = new Texture("structurebeam.png");
+		superjumpermusic = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
+		superjumpermusic.setVolume(0.1f);
 
+
+		superjumpermusic.play();
+		superjumpermusic.isLooping();
 		camera.setToOrtho(false, 256, 224);
 		player = new Playerobj();
 		player.width = 16;
@@ -81,6 +91,9 @@ public class PlatformerMain extends Game {
 
 	@Override
 	public void render () {
+
+
+
 		if (player.velocity.y < 0) {
 			if (!grounded) {
 				player.falling();
@@ -143,6 +156,17 @@ public class PlatformerMain extends Game {
 		for (Block iter : blockarray) {
 			batch.draw(iter.blockimage, iter.x, iter.y);
 		}
+
+
+		for (ThrowableObject j : throwlist) {
+			j.Velocity.y -= gravity * Gdx.graphics.getDeltaTime();
+			j.x += j.Velocity.x;
+			j.y += j.Velocity.y;
+			batch.draw(new Texture("deagle.png"), j.x, j.y);
+
+			
+		}
+
 		TextureRegion tempflip = new TextureRegion(patroltex);
 		for (PatrolEnemy iter : enemyarray) {
 			iter.velocity.y -= gravity * Gdx.graphics.getDeltaTime();
@@ -199,6 +223,19 @@ public class PlatformerMain extends Game {
 			
 		}
 
+		if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+			ThrowableObject j = new ThrowableObject( (int) (player.x + ((playerdir) ? player.width : 0)),  (int) (player.y + player.height/2), 16, 16);
+			j.Velocity = new Vector2(10 * (playerdir ? -1:1), 0);
+			throwlist.add(j);
+		}
+
+		if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
+			Vector3 touch = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+			ThrowableObject testblock3 = new ThrowableObject(16*((int)(touch.x /16)), 16*((int)(touch.y /16)), 16, 16);
+			throwlist.add(testblock3);
+			
+		}
+
 		if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
 			Vector3 touch = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
 			Block testblock = new Block(16*((int)(touch.x /16)), 16*((int)(touch.y /16)), new Texture("chicken.png"));
@@ -232,7 +269,7 @@ public class PlatformerMain extends Game {
 
 		boolean tempgrounded = false;
 		for (Block iter : blockarray) {
-			if (iter.overlaps(player) && !iter.consumnable) {
+			if (iter.overlaps(player) && !iter.consumnable && !player.dead) {
 				if (player.y > iter.y) {
 
 					player.y = iter.y + iter.height;
@@ -248,7 +285,7 @@ public class PlatformerMain extends Game {
 
 
 		for (Block iter : blockarray) {
-			if (iter.overlaps(player) && !iter.consumnable) {
+			if (iter.overlaps(player) && !iter.consumnable && !player.dead) {
 				if (player.y < iter.y) {
 					player.y = iter.y - player.height;
 					player.velocity.y = 0;
@@ -324,6 +361,7 @@ public class PlatformerMain extends Game {
 		batch.dispose();
 		img.dispose();
 		nom1.dispose();
+		superjumpermusic.dispose();
 		nom2.dispose();
 	}
 }
