@@ -159,7 +159,9 @@ public class PlatformerMain extends Game {
 
 
 		for (ThrowableObject j : throwlist) {
-			j.Velocity.y -= gravity * Gdx.graphics.getDeltaTime();
+			if (!j.antigrav) {
+				j.Velocity.y -= gravity * Gdx.graphics.getDeltaTime();
+			}
 			j.x += j.Velocity.x;
 			j.y += j.Velocity.y;
 			batch.draw(new Texture("deagle.png"), j.x, j.y);
@@ -224,8 +226,9 @@ public class PlatformerMain extends Game {
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-			ThrowableObject j = new ThrowableObject( (int) (player.x + ((playerdir) ? player.width : 0)),  (int) (player.y + player.height/2), 16, 16);
-			j.Velocity = new Vector2(10 * (playerdir ? -1:1), 0);
+			ThrowableObject j = new ThrowableObject( (int) (player.x + ((playerdir) ? -player.width : player.width)),  (int) (player.y + player.height/2), 16, 16);
+			j.antigrav = true;
+			j.Velocity = new Vector2(5 * (playerdir ? -1:1), 0);
 			throwlist.add(j);
 		}
 
