@@ -13,6 +13,7 @@ import javax.imageio.ImageTypeSpecifier;
 import javax.lang.model.util.ElementScanner6;
 import javax.naming.directory.DirContext;
 import javax.print.attribute.standard.MediaSize.Other;
+import javax.swing.plaf.basic.BasicDesktopIconUI;
 import javax.swing.plaf.metal.MetalBorders.PaletteBorder;
 import javax.xml.transform.Templates;
 
@@ -21,6 +22,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -65,7 +67,7 @@ public class PlatformerMain extends Game {
 		camera = new OrthographicCamera();
 		currenttex = new Texture("structurebeam.png");
 		superjumpermusic = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
-		superjumpermusic.setVolume(0.1f);
+		superjumpermusic.setVolume(0f);
 
 
 		superjumpermusic.play();
@@ -93,6 +95,108 @@ public class PlatformerMain extends Game {
 	public void render () {
 
 
+		if (Gdx.input.isKeyJustPressed(Input.Keys.Y) && Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
+			int x = 0;
+			int y= 0;
+			for (Block n : blockarray) {
+				n.blockimage.dispose();
+			}
+			blockarray = new Array<Block>();
+			enemyarray = new Array<PatrolEnemy>();
+			FileHandle file = Gdx.files.local("save.txt");
+			player.dead = false;
+			player.velocity.y = 0;
+			camera.position.x = 0 + camera.viewportWidth/2;
+			player.x = 0;
+			player.y = 64;
+			String loadsString = file.readString();
+			for (int i = 0; i < loadsString.length(); i++) {
+				if (loadsString.charAt(i) == '*') {
+					x= -1;
+					y++;
+				}
+				else if (loadsString.charAt(i) == '0') {
+
+				}
+				else if (loadsString.charAt(i) == 'c') {
+					Block tempblock = new Block();
+					tempblock.blockimage = new Texture("chicken.png");
+					tempblock.consumnable = true;
+					tempblock.x = x*16;
+					tempblock.y = y*16;
+					blockarray.add(tempblock);
+				}
+				else if (loadsString.charAt(i) == 'p') {
+					enemyarray.add(new PatrolEnemy(x*16, y*16));
+				}
+				else {
+					try {
+						Block tempblock = new Block();
+						Texture testtex;
+						tempblock.curnum = (Character.getNumericValue(loadsString.charAt(i)));
+						switch (tempblock.curnum) {
+							case 1:
+							testtex = new Texture("block.png");
+								break;
+							case 2:
+							testtex = new Texture("cementtop.png");
+								break;
+							case 3:
+							testtex = new Texture("chicken.png");
+								break;
+							case 4:
+							testtex = new Texture("purplebricks.png");
+								break;
+							case 5:
+							testtex = new Texture("exclamation.png");
+								break;
+							case 6:
+							testtex = new Texture("deagle.png");
+								break;
+							default:
+							testtex = new Texture("structurebeam.png");
+								break;
+						}
+						tempblock.blockimage = testtex;
+						tempblock.x = x*16;
+						tempblock.y = y*16;
+						blockarray.add(tempblock);
+					} finally  {
+
+					}
+				}
+				x++;
+			}
+		}
+
+		if (Gdx.input.isKeyJustPressed(Input.Keys.T) && Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
+			String savestring = "";
+			FileHandle file = Gdx.files.local("save.txt");
+			for (int i = 0; i < 14; i++) {
+				for (int j = 0; j < 500; j++) {
+					String addstring = "0";
+					for (Block m : blockarray) {
+						if (m.x == j*16 && m.y == i*16) {
+							if (m.consumnable) {
+								addstring = "c";
+							}
+							else {
+								addstring = new Integer( m.curnum).toString();
+							}
+
+						}
+					}
+					for (PatrolEnemy k : enemyarray) {
+						if (k.spawnloc.x == j*16 && k.spawnloc.y == i*16) {
+							addstring = "p";
+						}
+					}
+					savestring += addstring;
+				}
+				savestring+= "*";
+			}
+			file.writeString(savestring, false);
+		}
 
 		if (player.velocity.y < 0) {
 			if (!grounded) {
@@ -116,11 +220,11 @@ public class PlatformerMain extends Game {
 		batch.draw(bg, camera.position.x - camera.viewportWidth/2, 0);
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
-			if (regnum > 10) {
+			if (regnum > 6) {
 				regnum = 1;
 			}
 			if (regnum <= 0) {
-				regnum = 10;
+				regnum = 6;
 			}
 			else {
 				regnum++;
@@ -169,26 +273,26 @@ public class PlatformerMain extends Game {
 			
 		}
 
-		TextureRegion tempflip = new TextureRegion(patroltex);
 		for (PatrolEnemy iter : enemyarray) {
 			iter.velocity.y -= gravity * Gdx.graphics.getDeltaTime();
 			iter.x+= iter.velocity.x *iter.dir;
 			iter.y += iter.velocity.y;
-			tempflip.flip((iter.dir < 0), false);
 			for (Block iter2 : blockarray) {
 				if (iter.overlaps(iter2)) {
 
 					if (iter.y > iter2.y) {
-						iter.velocity.y = 1;
+						iter.velocity.y = 0;
 						iter.y = iter2.y + iter2.height;
 					}
 					else if (iter.x < iter2.x) {
 						iter.x = iter2.x - iter.width;
 						iter.dir = -iter.dir;
+						iter.thistext.flip(true, false);
 					}
 					else if (iter.x > iter2.x) {
 						iter.x = iter2.x + iter.width;
 						iter.dir = -iter.dir;
+						iter.thistext.flip(true, false);
 					}
 				}
 			}
@@ -196,7 +300,7 @@ public class PlatformerMain extends Game {
 				player.dead = true;
 				player.velocity.y = 3;
 			}
-			batch.draw(tempflip, iter.x, iter.y);
+			batch.draw(iter.thistext, iter.x, iter.y);
 			
 		}
 
@@ -212,6 +316,7 @@ public class PlatformerMain extends Game {
 		if (Gdx.input.justTouched()) {
 			Vector3 touch = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
 			Block testblock = new Block(16*((int)(touch.x /16)), 16*((int)(touch.y /16)), currenttex);
+			testblock.curnum = regnum;
 			testblock.consumnable = false;
 			blockarray.add(testblock);
 
